@@ -3,10 +3,10 @@ import struct
 import os
 import hashlib
 
-IP = '127.0.0.1'
-PORT = 1234
+IP = 'your remote IP'
+PORT = remote port
 ROOT_PATH = None
-PUSH_PATH = r'D:\push'
+PUSH_PATH = remote path
 
 # 生成md5
 def getMd5(file):
