@@ -6,10 +6,10 @@ import hashlib
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
 
-ROOT_PATH = r'D:\test'
+ROOT_PATH = local path
 PUSH_PATH = None
-IP = '43.138.148.64'
-PORT = 1234
+IP = 'Your remote IP'
+PORT = remote port
 
 # 生成md5
 def getMd5(file):
