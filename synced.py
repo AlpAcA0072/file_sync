@@ -2,23 +2,32 @@ import socket
 import struct
 import os
 import hashlib
+import time
+from enum import Enum
 
-IP = 'your remote IP'
-PORT = remote port
+IP = '127.0.0.1'
+PORT = 1234
 ROOT_PATH = None
-PUSH_PATH = remote path
+PUSH_PATH = r'D:\push'
+LOG_FILE = r'D:\PyProj\sync\error.log'
+
+
 
 # 生成md5
 def getMd5(file):
     m = hashlib.md5()
-    with open(file, 'rb') as fobj:
-        while True:
-            data = fobj.read(4096)
-            if not data:
-                break
-            m.update(data)
+    try:
+        with open(file, 'rb') as fobj:
+            while True:
+                data = fobj.read(4096)
+                if not data:
+                    break
+                m.update(data)
 
-    return m.hexdigest()
+        return m.hexdigest()
+    except Exception as e:
+        eh.handle(e, Type.error)
+        print(e)
 
 def check_file_existence(file, md5):
     file = file_to_local(file)
@@ -42,7 +51,26 @@ def make_recursive_folder(file):
             if not os.path.exists(curr_path):
                 os.makedirs(curr_path)
 
+class ErrorHandler():
+    def def_time(): 
+        return (time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())))
+
+    def handle(info, type):
+        log = open(LOG_FILE, 'a')
+        log.write(type.value + ', ')
+        log.write(ErrorHandler.def_time() + ', ')
+        log.write('IP: ' + IP + ', Port: ' + str(PORT) + ', ')
+        log.write(str(info) + '\n')
+        log.flush()
+        
+
+class Type(Enum):
+    error = 'ERROR'
+    info = 'INFO'
+
 if __name__ == '__main__':
+    eh = ErrorHandler
+
     print("从端")
     mySocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     mySocket.bind((IP, PORT))
@@ -64,6 +92,7 @@ if __name__ == '__main__':
         file_exist = check_file_existence(file, md5)
         conn.send(str(file_exist).encode('utf-8'))
         if file_exist:
+            eh.handle('file already exist: '+ file + ' md5: ' + md5, Type.info)
             continue
         # t = threading.Thread(target=recv_file, args=(conn, addr, file))
         # t.start()
@@ -97,6 +126,7 @@ if __name__ == '__main__':
                         data = conn.recv(filesize - recvd_size)
                         recvd_size = filesize
                     fp.write(data)
+                    eh.handle('recieved size: '+ str(recvd_size) + ' file name: ' + str(fn) + ' file total size: ' + str(filesize), Type.info)
                 fp.close()
                 print ('end receive...')
             break

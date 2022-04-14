@@ -6,10 +6,11 @@ import hashlib
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
 
-ROOT_PATH = local path
+ROOT_PATH = r'D:\test'
 PUSH_PATH = None
-IP = 'Your remote IP'
-PORT = remote port
+IP = '43.138.148.64'
+# IP = '127.0.0.1'
+PORT = 1234
 
 # 生成md5
 def getMd5(file):
@@ -26,19 +27,16 @@ def getMd5(file):
 
 # 读取文件夹下所有文件（不限级）路径+名称+md5
 def readDir(path):
-    Files = []
+    files = []
     try:
         fileList = os.listdir(path)
         for file in fileList:
             file = path + '\\' + file
             if os.path.isdir(file):
-                subFiles = readDir(file)
-                for _ in subFiles:
-                    # 合并当前目录与子目录的所有文件路径
-                    Files.append(_)
+                files.extend(readDir(file))
             else:
-                Files.append(file)
-        return Files
+                files.append(file)
+        return files
     except Exception as e:
         print(e)
 
@@ -69,7 +67,6 @@ def sendFile(file):
             break
         conn.send(data)
 
-
 # 实时监测文件夹变化
 class FileMonitorHandler(FileSystemEventHandler):
     def __init__(self) -> None:
@@ -79,9 +76,7 @@ class FileMonitorHandler(FileSystemEventHandler):
     def on_modified(self, event):
         print("文件发生了变化: " + event.src_path)
         if os.path.isfile(event.src_path):
-            # test_copy_file(event.src_path)
             handleFile(event.src_path)
-
 
 if __name__ == '__main__':
     #socket连接
